@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model string
+@{
+    ViewData["Title"] = "Encrypted Result";
+}
+
+<div class="container mt-5">
+    <h1> Encrypted Data</h1>
+
+
+    <p>
+        This is what the data looks like after encryption
+    </p>
+
+    <div class="alert alert-warning"
+        style="word-break: break-all;">
+        @Model
+    </div>
+
+    <h3>Next Step</h3>
+
+    <p> 
+        The encrypted payload can now be retrieved and decrypted as needed.
+    </p>
+
+	<form asp-controller="Vault"
+		  asp-action="Decrypt"
+		  method="post">
+
+		<input type="hidden"
+			   name="encryptedData"
+			   value="@Model" />
+
+		<button type="submit"
+				class="btn btn-success">
+			Retrieve and Decrypt Data
+		</button>
+    </form>
+
+</div>

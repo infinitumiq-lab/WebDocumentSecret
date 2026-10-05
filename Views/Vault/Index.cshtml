@@ -1,0 +1,113 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model VaultEncryptionPOC.Models.FormModel
+
+@{
+	ViewData["Title"] = "Vault Encryption POC";
+}
+
+<div class="container mt-5">
+	<h1><Vault></Vault> Encryption POC</h1>
+
+	<p class="text-muted">
+		Enter Some Sample Information.
+	</p>
+
+	<form asp-controller="Vault" asp-action="Encrypt" method="post">
+	
+		<div class="mb-3">
+			<label asp-for="FullName" class="form-label">
+				FullName
+			
+			</label>
+
+			<input asp-for="FullName"
+			class="form-control"/>
+		
+			<span asp-validation-for="FullName"
+				class="text-danger">
+			</span>
+		
+
+		</div>
+
+		<div class="mb-3">
+			<label asp-for="DocumentType" class="form-label">
+				Document Type
+
+			</label>
+
+			<select asp-for="DocumentType"
+				   class="form-select">
+
+				<option value="">
+					-- Select Document Type --
+				</option>
+
+				<option value="Driver's License">
+					Driver's License
+				</option>
+
+				<option value="Insurance">
+					Insurance
+				</option>
+		
+				<option value="Pension">
+					Pension
+				</option>
+
+				<option value="Will">
+					Will
+				</option>
+
+				<option value="Passport">
+					Passport
+				</option>
+
+			</select>
+
+			<span asp-validation-for="DocumentType"
+				class="text-danger">
+			</span>
+
+		</div>
+
+
+		<div class="mb-3">
+			<label asp-for="DocumentNumber" class="form-label">
+				Document Number
+			</label>
+
+			<input asp-for="DocumentNumber"
+			class="form-control"/>
+			<span asp-validation-for="DocumentNumber"
+				class="text-danger">
+			</span>
+		</div>
+
+		<div class="mb-3">
+			<label asp-for="Issuer" class="form-label">
+				Issuer
+			</label>
+			<input asp-for="Issuer"
+			class="form-control"/>
+		</div>
+
+
+		<div class="mb-3">
+			<label asp-for="ExpiryDate" class="form-label">
+				Expiry Date
+			</label>
+			<input asp-for="ExpiryDate"
+			type="date"
+			class="form-control"/>
+		</div>
+
+		<button type="submit" class="btn btn-primary">
+			Encrypt and Submit
+
+		</button>
+	
+	</form>
+</div>
