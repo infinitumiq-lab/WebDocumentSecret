@@ -1,0 +1,134 @@
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model VaultEncryptionPOC.Models.Account.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Create your account";
+}
+
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="auth-logo">
+                AllThatMatters
+            </a>
+
+            <h1>Create your private vault</h1>
+
+            <p>
+                Create your account to begin keeping
+                what matters securely organized.
+            </p>
+        </div>
+
+        <form asp-action="Register"
+              method="post"
+              novalidate>
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="validation-summary"
+                 role="alert">
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label asp-for="FirstName"></label>
+
+                    <input asp-for="FirstName"
+                           class="form-control"
+                           autocomplete="given-name" />
+
+                    <span asp-validation-for="FirstName"
+                          class="field-validation">
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="LastName"></label>
+
+                    <input asp-for="LastName"
+                           class="form-control"
+                           autocomplete="family-name" />
+
+                    <span asp-validation-for="LastName"
+                          class="field-validation">
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+
+                <input asp-for="Email"
+                       class="form-control"
+                       autocomplete="email" />
+
+                <span asp-validation-for="Email"
+                      class="field-validation">
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber"></label>
+
+                <input asp-for="PhoneNumber"
+                       class="form-control"
+                       autocomplete="tel" />
+
+                <span asp-validation-for="PhoneNumber"
+                      class="field-validation">
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password"></label>
+
+                <input asp-for="Password"
+                       class="form-control"
+                       autocomplete="new-password" />
+
+                <span asp-validation-for="Password"
+                      class="field-validation">
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+
+                <input asp-for="ConfirmPassword"
+                       class="form-control"
+                       autocomplete="new-password" />
+
+                <span asp-validation-for="ConfirmPassword"
+                      class="field-validation">
+                </span>
+            </div>
+
+            <button type="submit"
+                    class="auth-button">
+                Create account
+            </button>
+
+        </form>
+
+        <div class="auth-footer">
+            Already have an account?
+            <a asp-action="Login">Sign in</a>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
