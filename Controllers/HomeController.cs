@@ -23,6 +23,18 @@ namespace VaultEncryptionPOC.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Dashboard()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("AccessToken")))
+            {
+                TempData["InfoMessage"] = "Please sign in to view your dashboard.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

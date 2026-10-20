@@ -18,13 +18,16 @@ public class UserController : Controller
     [HttpGet("Verify")]
     public IActionResult Verify([FromQuery] string? token)
     {
-        return View(new VerifyEmailViewModel { Token = token?.Trim() ?? string.Empty });
+        var cleanedToken = token?.Trim() ?? string.Empty;
+        ViewBag.VerificationAttempted = string.IsNullOrWhiteSpace(cleanedToken);
+        return View(new VerifyEmailViewModel { Token = cleanedToken });
     }
 
     [HttpPost("Verify")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Verify(VerifyEmailViewModel model)
     {
+        ViewBag.VerificationAttempted = true;
         if (!ModelState.IsValid)
         {
             return View(model);

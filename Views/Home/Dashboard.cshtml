@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var email = Context.Session.GetString("UserEmail") ?? "Welcome back";
+    var firstPart = email.Contains('@') ? email.Split('@')[0] : email;
+}
+@section Styles { <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" /> }
+<div class="app-shell">
+    <aside class="app-sidebar" aria-label="Main navigation">
+        <a class="sidebar-brand" asp-controller="Home" asp-action="Dashboard"><span class="app-brand-mark">✦</span><span>allthat<strong>matters</strong></span></a>
+        <p class="sidebar-label">WORKSPACE</p>
+        <a class="sidebar-link active" asp-controller="Home" asp-action="Dashboard"><span>⌂</span> Overview</a>
+        <a class="sidebar-link" asp-controller="Vault" asp-action="Index"><span>▣</span> Vault</a>
+        <a class="sidebar-link" href="#collections"><span>▦</span> Collections</a>
+        <a class="sidebar-link" href="#reminders"><span>◷</span> Reminders</a>
+        <a class="sidebar-link" href="#activity"><span>↻</span> Recent activity</a>
+        <div class="sidebar-bottom"><p class="sidebar-label">ACCOUNT</p><a class="sidebar-link" asp-controller="Home" asp-action="Privacy"><span>♡</span> Privacy</a><a class="sidebar-link" href="mailto:support@allthatmatters.com"><span>?</span> Help &amp; support</a>
+            <form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="sidebar-link sidebar-logout" type="submit"><span>↪</span> Sign out</button></form>
+        </div>
+    </aside>
+    <main class="dashboard-main">
+        <header class="dashboard-topbar"><a class="topbar-brand" asp-controller="Home" asp-action="Dashboard"><span class="app-brand-mark">✦</span><span>allthat<strong>matters</strong></span></a><div class="topbar-account"><span class="account-avatar">@(firstPart.Length > 0 ? firstPart.Substring(0,1).ToUpperInvariant() : "U")</span><span class="topbar-email">@email</span><form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="app-signout-button" type="submit">Sign out</button></form></div></header>
+        <section class="dashboard-content">
+            @if (TempData["SuccessMessage"] is string success) { <div class="dashboard-alert success" role="status">@success</div> }
+            @if (TempData["InfoMessage"] is string info) { <div class="dashboard-alert" role="status">@info</div> }
+            <div class="dashboard-welcome"><div><h1>Welcome back.</h1><p>Keep the important things close, organized, and ready when you need them.</p></div><a class="dashboard-primary-cta" asp-controller="Vault" asp-action="Index">Add a document</a></div>
+            <div class="overview-cards">
+                <article class="overview-card card-gold"><span class="overview-icon">▣</span><p>Saved documents &amp; secrets</p><strong>—</strong><small>Your saved items will appear here</small></article>
+                <article class="overview-card"><span class="overview-icon">◷</span><p>Upcoming reminders</p><strong>—</strong><small>Renewals and expiry dates</small></article>
+                <article class="overview-card"><span class="overview-icon">▦</span><p>Collections</p><strong>—</strong><small>Your organized groups</small></article>
+            </div>
+            <div class="dashboard-lower-grid">
+                <section class="dashboard-panel" id="collections"><div class="panel-heading"><div><h2>Quick access</h2><p>Go straight to the things you use most.</p></div></div><div class="quick-links"><a class="quick-link" asp-controller="Vault" asp-action="Index"><span class="quick-icon gold">▣</span><span><strong>Open your vault</strong><small>Manage documents and secrets</small></span><span class="quick-arrow">→</span></a><a class="quick-link" href="#collections"><span class="quick-icon cream">▦</span><span><strong>Collections</strong><small>Group related records together</small></span><span class="quick-arrow">→</span></a><a class="quick-link" href="#reminders"><span class="quick-icon cream">◷</span><span><strong>Reminders</strong><small>Keep track of important dates</small></span><span class="quick-arrow">→</span></a></div></section>
+                <section class="dashboard-panel" id="reminders"><div class="panel-heading"><div><h2>Upcoming reminders</h2><p>Important dates, all in one place.</p></div></div><div class="panel-empty"><span class="empty-illustration">◷</span><strong>No reminders yet</strong><p>When you add renewal or expiry reminders, they'll show up here.</p></div></section>
+                <section class="dashboard-panel activity-panel" id="activity"><div class="panel-heading"><div><h2>Recent activity</h2><p>A simple history of your vault activity.</p></div></div><div class="panel-empty"><span class="empty-illustration">↻</span><strong>Nothing to show just yet</strong><p>Your recent saves and updates will appear here when activity tracking is connected.</p></div></section>
+            </div>
+            <footer class="dashboard-footer">Your information deserves care. Keep it organized, on your terms.</footer>
+        </section>
+    </main>
+</div>

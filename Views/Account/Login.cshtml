@@ -35,7 +35,7 @@
             <div class="info-message" role="status">@infoMessage</div>
         }
 
-        <form asp-action="Login"
+        <form class="js-loading-form" data-loading-label="Signing you in…" asp-action="Login"
               method="post"
               autocomplete="off"
               novalidate>
@@ -74,9 +74,8 @@
                 </span>
             </div>
 
-            <button type="submit"
-                    class="auth-button">
-                Sign in
+            <button type="submit" class="auth-button js-loading-submit">
+                <span class="button-label">Sign in</span><span class="button-spinner" aria-hidden="true"></span>
             </button>
 
         </form>
@@ -92,5 +91,6 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/form-loading.js" asp-append-version="true"></script>
     <script src="~/js/login-security.js" asp-append-version="true"></script>
 }

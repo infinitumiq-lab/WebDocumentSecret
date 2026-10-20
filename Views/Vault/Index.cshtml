@@ -1,51 +1,77 @@
 @model IReadOnlyList<VaultEncryptionPOC.Models.Vault.DocumentTypeViewModel>
 @{
     ViewData["Title"] = "My Vault";
+    var apiSuccess = (bool?)ViewBag.ApiSuccess ?? false;
 }
-<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Auth.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/vault.css" asp-append-version="true" />
 <div class="vault-page">
-    <header class="vault-topbar">
-        <a asp-controller="Home" asp-action="Index" class="auth-logo">AllThatMatters</a>
-        <div class="vault-user-actions">
-            <span>@Context.Session.GetString("UserEmail")</span>
+    <header class="app-topbar">
+        <a asp-controller="Home" asp-action="Dashboard" class="app-brand" aria-label="AllThatMatters dashboard">
+            <span class="app-brand-mark" aria-hidden="true">✦</span><span>allthat<strong>matters</strong></span>
+        </a>
+        <nav class="app-topbar-nav" aria-label="Account navigation">
+            <a class="app-nav-link" asp-controller="Home" asp-action="Dashboard"><span aria-hidden="true">⌂</span> Dashboard</a>
+            <span class="app-user-email" title="Signed-in account">@Context.Session.GetString("UserEmail")</span>
             <form asp-controller="Account" asp-action="Logout" method="post">
                 @Html.AntiForgeryToken()
-                <button class="secondary-button" type="submit">Sign out</button>
+                <button class="app-signout-button" type="submit">Sign out</button>
             </form>
-        </div>
+        </nav>
     </header>
     <section class="vault-content">
-        <p class="vault-eyebrow">YOUR PRIVATE SPACE</p>
-        <h1>My Vault</h1>
+        <div class="page-heading-row">
+            <div><p class="page-kicker">YOUR INFORMATION, ORGANIZED</p><h1>My Vault</h1></div>
+            <p class="page-heading-note">Documents and secrets you choose to keep.</p>
+        </div>
         <p class="vault-intro">Keep the information that matters, organized in one private place.</p>
 
-        @if (TempData["SuccessMessage"] is string successMessage)
-        { <div class="success-message" role="status">@successMessage</div> }
-        @if (TempData["InfoMessage"] is string infoMessage)
-        { <div class="info-message" role="status">@infoMessage</div> }
-        @if (ViewBag.ApiMessage is string apiMessage && (!((bool?)ViewBag.ApiSuccess ?? false) || Model.Count == 0))
-        { <div class="info-message" role="status">@apiMessage</div> }
+        @if (TempData["SuccessMessage"] is string successMessage) { <div class="success-message" role="status">@successMessage</div> }
+        @if (TempData["InfoMessage"] is string infoMessage) { <div class="info-message" role="status">@infoMessage</div> }
+        @if (ViewBag.ApiMessage is string apiMessage && (!apiSuccess || Model.Count == 0))
+        { <div class="@(apiSuccess ? "info-message" : "error-message")" role="@(apiSuccess ? "status" : "alert")">@apiMessage</div> }
 
         @if (Model.Count > 0)
         {
             <div class="schema-card">
-                <label for="documentType">What would you like to add?</label>
-                <select id="documentType" class="form-control">
+                <div class="schema-card-heading">
+                    <p class="vault-eyebrow">ADD TO YOUR VAULT</p>
+                    <h2>What would you like to keep?</h2>
+                    <p>Choose a document type, enter your vault password, and save an encrypted copy. Your document contents are encrypted in this browser before anything is sent to storage.</p>
+                </div>
+                <label for="documentType">Document type</label>
+                <select id="documentType" class="form-control" autocomplete="off">
                     <option value="">Choose a document type</option>
                     @foreach (var schema in Model)
                     {
                         <option value="@schema.DocumentTypeId">@schema.TypeName</option>
                     }
                 </select>
-                <div id="documentFormContainer" class="document-form-container" hidden>
-                    <form id="dynamicDocumentForm">
+                <section class="vault-unlock-panel" aria-labelledby="vaultUnlockHeading">
+                <h2 id="vaultUnlockHeading">Unlock your vault</h2>
+                <p>Enter your separate vault password. It is used in this browser to derive your encryption key and is never sent to the server.</p>
+                <label for="vaultPassword">Vault password</label>
+                <input id="vaultPassword" class="form-control" type="password" autocomplete="current-password" minlength="12" maxlength="1024" required />
+                <p class="field-hint-inline">Use the same vault password when retrieving this document later. Do not use your account login password.</p>
+            </section>
+            <div class="schema-card" id="savedDocumentPanel">
+                <h2>Retrieve an encrypted document</h2>
+                <p>Enter a record ID returned after saving. The encrypted record is retrieved first, then decrypted in your browser.</p>
+                <label for="retrieveRecordId">Document record ID</label>
+                <input id="retrieveRecordId" class="form-control" autocomplete="off" placeholder="Paste the saved record ID" />
+                <button type="button" class="secondary-button" id="retrieveDocumentButton">Retrieve and decrypt</button>
+                <pre id="retrievedDocumentOutput" class="retrieved-document-output" hidden></pre>
+            </div>
+            <div id="documentFormContainer" class="document-form-container" hidden>
+                    <form id="dynamicDocumentForm" novalidate>
                         @Html.AntiForgeryToken()
                         <div id="documentFields" class="document-fields"></div>
-                        <div class="form-group attachment-group">
-                            <label for="supportingFiles">Supporting documents (optional)</label>
-                            <input id="supportingFiles" name="supportingFiles" class="form-control" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" autocomplete="off" />
-                            <small>Choose files to include in this local preview. Files are not uploaded or saved yet.</small>
+                        <div id="formValidationSummary" class="validation-summary" role="alert" hidden></div>
+                        <div class="attachment-group">
+                            <label for="supportingFiles">Supporting files <span class="field-hint-inline">(optional)</span></label>
+                            <input id="supportingFiles" name="supportingFiles" class="form-control" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" />
+                            <small>Select PDF, image, or Word files up to 10 MB each. In this version, files are selected locally for preview only; they are not uploaded or saved.</small>
+                            <div id="attachmentValidation" class="field-hint" role="alert" hidden></div>
                         </div>
                         <div class="form-actions">
                             <button type="reset" class="secondary-button" id="clearDocumentForm">Clear form</button>
@@ -54,9 +80,13 @@
                     </form>
                     <section id="formPreviewMessage" class="details-preview" aria-live="polite" hidden>
                         <div class="preview-heading"><h2>Review your details</h2><button type="button" class="secondary-button" id="hidePreview">Hide details</button></div>
-                        <p class="preview-warning">This is a private on-screen preview only. Nothing has been saved or encrypted yet.</p>
+                        <p class="preview-warning">Review your details before saving. Data is encrypted in your browser; the server receives only the encrypted envelope. Supporting files are not uploaded in this version.</p>
                         <dl id="previewDetails" class="preview-details"></dl>
                         <div id="previewAttachments" class="preview-attachments"></div>
+                        <div class="form-actions preview-actions">
+                            <button type="button" class="auth-button" id="prepareSubmission">Encrypt and save securely</button>
+                        </div>
+                        <p id="submissionStatus" class="info-message" role="status" hidden></p>
                     </section>
                 </div>
             </div>
@@ -64,9 +94,9 @@
         else
         {
             <div class="schema-card empty-state">
-                <h2>Document forms are not available yet</h2>
-                <p>The form preview now uses the working Documents endpoint. It creates document-type choices from each document type ID and creates fields from the dynamic attribute names returned by the API. If no forms appear, the API may have returned no records or no dynamic attributes.</p>
-                <a class="secondary-link" asp-controller="Vault" asp-action="Index">Try again</a>
+                <h2>We couldn't load your document forms</h2>
+                <p>The vault page is available, but the form definitions could not be loaded from the service. Please try again in a moment.</p>
+                <div class="empty-state-actions"><a class="secondary-link" asp-controller="Vault" asp-action="Index">Try again</a><a class="text-link" asp-controller="Home" asp-action="Dashboard">Back to dashboard</a></div>
             </div>
         }
     </section>
@@ -76,5 +106,6 @@
     <script>
         window.allThatMattersFormSchemas = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)));
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2-bundled.min.js" crossorigin="anonymous"></script>
     <script src="~/js/vault.js" asp-append-version="true"></script>
 }

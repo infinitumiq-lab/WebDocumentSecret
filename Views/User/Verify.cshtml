@@ -1,33 +1,82 @@
 @model VaultEncryptionPOC.Models.Account.VerifyEmailViewModel
 @{
     ViewData["Title"] = "Verify your email";
+    var verificationAttempted = (bool?)ViewBag.VerificationAttempted ?? false;
 }
-<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Auth.css" asp-append-version="true" />
 
 <div class="auth-page">
-    <div class="auth-card">
+    <div class="auth-card verification-card">
         <div class="auth-header">
             <a asp-controller="Home" asp-action="Index" class="auth-logo">AllThatMatters</a>
             <h1>Verify your email</h1>
-            <p>Open the verification link sent to your inbox. If the link did not fill in the token, paste the token from the email below.</p>
+            @if (!verificationAttempted && !string.IsNullOrWhiteSpace(Model.Token))
+            {
+                <p>We're confirming your email address. This should only take a moment.</p>
+            }
+            else
+            {
+                <p>We couldn't verify this link. It may be missing, invalid or expired.</p>
+            }
         </div>
 
-        <form asp-controller="User" asp-action="Verify" method="post">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
-            <div class="form-group">
-                <label asp-for="Token"></label>
-                <input asp-for="Token" class="form-control" autocomplete="one-time-code" spellcheck="false" />
-                <span asp-validation-for="Token" class="field-validation"></span>
-            </div>
-            <button type="submit" class="auth-button">Verify email</button>
-        </form>
+        <div id="verificationLoading" class="verification-status" role="status" aria-live="polite" hidden>
+            <span class="verification-spinner" aria-hidden="true"></span>
+            <span>Verifying your email…</span>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+
+        @if (!verificationAttempted && !string.IsNullOrWhiteSpace(Model.Token))
+        {
+            <form id="automaticVerificationForm" asp-controller="User" asp-action="Verify" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="Token" type="hidden" autocomplete="off" />
+                <noscript><p>JavaScript is required to complete automatic verification. Please enable JavaScript and reopen the email link.</p></noscript>
+                <button id="verificationSubmit" type="submit" class="auth-button">Verify email</button>
+            </form>
+        }
+        else
+        {
+            <p class="verification-help">Open the most recent verification link from your email. If it has expired, request a new verification email from the resend option when it becomes available.</p>
+        }
 
         <div class="auth-footer">
             Already verified? <a asp-controller="Account" asp-action="Login">Sign in</a>
         </div>
     </div>
 </div>
+
+<style>
+.verification-status{display:flex;align-items:center;justify-content:center;gap:10px;margin:20px 0;color:#315744}
+.verification-spinner{width:18px;height:18px;border:2px solid #d5e2d8;border-top-color:#198754;border-radius:50%;animation:verification-spin .8s linear infinite}
+.verification-help{color:#657268;line-height:1.6}
+#verificationSubmit{margin-top:12px}
+@@keyframes verification-spin{to{transform:rotate(360deg)}}
+@@media (prefers-reduced-motion: reduce){.verification-spinner{animation:none}}
+</style>
+
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+<script>
+(() => {
+    const form = document.getElementById('automaticVerificationForm');
+    if (!form) return;
+
+    // Remove the token from the visible address bar before submitting it.
+    // The token is never rendered as visible page text.
+    try {
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+    } catch { /* Continue verification even if URL cleanup is unavailable. */ }
+
+    const loading = document.getElementById('verificationLoading');
+    const submit = document.getElementById('verificationSubmit');
+    if (loading) loading.hidden = false;
+    if (submit) {
+        submit.disabled = true;
+        submit.textContent = 'Verifying…';
+    }
+    form.submit();
+})();
+</script>
 }

@@ -27,7 +27,7 @@
             </p>
         </div>
 
-        <form asp-action="Register"
+        <form class="js-loading-form" data-loading-label="Creating your account…" asp-action="Register"
               method="post"
               novalidate>
 
@@ -114,9 +114,8 @@
                 </span>
             </div>
 
-            <button type="submit"
-                    class="auth-button">
-                Create account
+            <button type="submit" class="auth-button js-loading-submit">
+                <span class="button-label">Create account</span><span class="button-spinner" aria-hidden="true"></span>
             </button>
 
         </form>
@@ -131,4 +130,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/form-loading.js" asp-append-version="true"></script>
 }

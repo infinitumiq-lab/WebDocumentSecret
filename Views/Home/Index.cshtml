@@ -26,7 +26,7 @@
                 <a href="#our-promise">Our promise</a>
                 @if (Context.Session.GetString("AccessToken") is not null)
                 {
-                    <a class="nav-sign-in" asp-controller="Vault" asp-action="Index">My vault</a>
+                    <a class="nav-sign-in" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
                     <form class="nav-logout-form" asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="nav-sign-in nav-logout-button" type="submit">Sign out</button></form>
                 }
                 else
@@ -53,7 +53,7 @@
             <a href="#our-promise" data-bs-dismiss="offcanvas">Our promise</a>
             @if (Context.Session.GetString("AccessToken") is not null)
             {
-                <a asp-controller="Vault" asp-action="Index">My vault</a>
+                <a asp-controller="Home" asp-action="Dashboard">Dashboard</a>
                 <form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="mobile-cta" type="submit">Sign out</button></form>
             }
             else

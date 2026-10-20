@@ -56,7 +56,7 @@ public class AccountController : Controller
         if (!string.IsNullOrWhiteSpace(result.Role)) HttpContext.Session.SetString("UserRole", result.Role);
 
         TempData["SuccessMessage"] = "You're signed in.";
-        return RedirectToAction("Index", "Vault");
+        return RedirectToAction("Dashboard", "Home");
     }
 
     [HttpGet]
